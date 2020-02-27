@@ -60,20 +60,19 @@ Using default options, create a new project and name it 'MyList'. Then, follow s
 3. Open MainActivity.kt, insert the following after setContentView of OnCreate() function:
     
     ```kotlin
-    val candideNames = resources.getStringArray(R.array.candidateNames)
     val listView : ListView = this.findViewById(R.id.myList)
     ```
     
 4. In MainActivity.kt, insert the following into the `onCreate()` method after the code inserted in step 3:
     
     ```kotlin
-    candidateNames = getResources().getStringArray(R.array.candidateNames);
+    val candidateNames = resources.getStringArray(R.array.candidateNames)
     
-    val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, candideNames)
+    val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, candidateNames)
     listView.adapter = arrayAdapter
     //using lambda syntax
     listView.setOnItemClickListener { parent, view, position, id ->
-        Toast.makeText(this, "${candideNames[position]}, seriously?", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "${candidateNames[position]}, seriously?", Toast.LENGTH_LONG).show()
     }
     ```
     
@@ -101,7 +100,7 @@ val listAdapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1
 listView.adapter = listAdapter
 //using lambda syntax
 listView.setOnItemClickListener { parent, view, position, id ->
-    Toast.makeText(this, "${candideNames[position]}, seriously?", Toast.LENGTH_LONG).show()
+    Toast.makeText(this, "${candidateNames[position]}, seriously?", Toast.LENGTH_LONG).show()
     candidateList.add("Stephen Au")
     listAdapter.notifyDataSetInvalidated()
 }
