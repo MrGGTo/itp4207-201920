@@ -321,19 +321,3 @@ If you run the app, click on 'Complex List' button, you'll see the following:
 ![photo](.md_images/photo.png)
 
 <!-- ### Grid View was here-->
-
-### AdapterView hierarchy
-
-You saw ArrayAdapter already. If you Google online examples you'll see more Adapters such as BaseAdapter, ListAdapter, and SimpleAdapter etc. What are the relationships among these?
-
-Basically, ArrayAdapter is the first concrete Adapter in the tree, above it are interfaces and an abstract class. But sometimes people do declare something like `ListAdapter listAdapter = new ArrayAdapter<String>()`, don't be confused.
-
-<!-- ![AdapterViewHierarchy](http://www.intertech.com/Blog/wp-content/uploads/2014/06/HeirarchyOfAdapter-480x396.png) -->
-![AdapterViewHierarchy](.md_images/HeirarchyOfAdapter.png)
-
-A similar hierarchy can be drawn for AdapterView and subclasses. Even though those 'collection' Views are named differently, they are in fact closely related to each other.
-
-<!-- ![HeirarchyOfAdapter](http://www.intertech.com/Blog/wp-content/uploads/2014/06/AdapterViewHierarchy-480x396.png) -->
-![HeirarchyOfAdapter](.md_images/AdapterViewHierarchy.png)
-
-> Above images are from a [blog](http://www.intertech.com/Blog/android-adapters-adapterviews/) written by Jim White.
