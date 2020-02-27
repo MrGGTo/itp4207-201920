@@ -13,7 +13,7 @@ Now let's look at some more subclasses of AdapterView.
 
 ### Simple ListView
 
-Using default options, create a new project and name it 'My Lists'. Then, follow steps below to create a simple list:
+Using default options, create a new project and name it 'MyList'. Then, follow steps below to create a simple list:
 
 1. First of all, define some data to play with. Insert the following into string.xml. 
     
@@ -50,36 +50,31 @@ Using default options, create a new project and name it 'My Lists'. Then, follow
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
+        android:id="@+id/myList"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
     ```
     
-3. Open MainActivity.java, insert the following declarations:
+3. Open MainActivity.kt, insert the following after setContentView of OnCreate() function:
     
-    ```java
-    private ListView listView;
-    private String[] candidateNames;
+    ```kotlin
+    val candideNames = resources.getStringArray(R.array.candidateNames)
+    val listView : ListView = this.findViewById(R.id.myList)
     ```
     
-4. In MainActivity.java, insert the following into the `onCreate()` method
+4. In MainActivity.kt, insert the following into the `onCreate()` method after the code inserted in step 3:
     
-    ```java
+    ```kotlin
     candidateNames = getResources().getStringArray(R.array.candidateNames);
     
-    listView = (ListView) findViewById(R.id.listViewSimple);
-    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, candidateNames);
-    listView.setAdapter(arrayAdapter);
-    listView.setOnItemClickListener(
-    
-            new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Toast.makeText(getBaseContext(), candidateNames[position] + ", seriously?", Toast.LENGTH_SHORT).show();
-                }
-            }
-    );
+    val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, candideNames)
+    listView.adapter = arrayAdapter
+    //using lambda syntax
+    listView.setOnItemClickListener { parent, view, position, id ->
+        Toast.makeText(this, "${candideNames[position]}, seriously?", Toast.LENGTH_LONG).show()
+    }
     ```
     
     What the code above does is to associate the ListView declared in the layout file with the data (string array) declared in string resource. ArrayAdapter takes three parameters: context, a layout resource for a single element of data, and the data. Here `android.R.layout.simple_list_item_1` is a system-defined resource layout file that contains only one TextView. You can define you own resource files as you see later on.
@@ -94,15 +89,22 @@ If you run the app, what you'll see is something like this:
 
 ![simple](.md_images/simple.png)
 
-The following code can be added after the `setOnItemClickListener()` block, but still within `onCreate()`method:
+Modify the code acoording to the table :
 
-```java
-List<String> candidateNamesNew = new ArrayList<String>(Arrays.asList(candidateNames));
-ArrayAdapter<String> arrayAdapterNew = new ArrayAdapter<String>(this, android.R.layout
-        .simple_list_item_1, candidateNamesNew);
-listView.setAdapter(arrayAdapterNew);
-arrayAdapterNew.add("New Someone");
-arrayAdapter.notifyDataSetInvalidated();
+```kotlin
+var candidateNames = resources.getStringArray(R.array.candidateNames)
+val listView : ListView = this.findViewById(R.id.myList)
+//val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, candidateNames)
+
+var candidateList : MutableList<String> = candidateNames.toMutableList()
+val listAdapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, candidateList)
+listView.adapter = listAdapter
+//using lambda syntax
+listView.setOnItemClickListener { parent, view, position, id ->
+    Toast.makeText(this, "${candideNames[position]}, seriously?", Toast.LENGTH_LONG).show()
+    candidateList.add("Stephen Au")
+    listAdapter.notifyDataSetInvalidated()
+}
 ```
 
 Have a look at the code above, and try to answer the following questions:
@@ -117,76 +119,50 @@ Simple ListView is useful for displaying data that can be converted to strings i
 
 1. First of all, download some images to use later on. Click on [this link](https://github.coventry.ac.uk/300CEM-1718SEPJAN/TEACHING-MATERIALS/blob/master/Additional_resources/candidates_photos.zip) to go to GitHub page and then click 'View Raw' to download some images of US presidential election candidates. Add those to your res/drawable resources folder.
     
-2. Create a new Java class called Candidate and insert the following 
-    
-    ```java
-    private String name;
-    private String detail;
-    private int photo;
-
-    public Candidate(String name, String detail, int photo) {
-        this.name = name;
-        this.detail = detail;
-        this.photo = photo;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDetail() {
-        return detail;
-    }
-
-    public int getPhoto() {
-        return photo;
-    }
-
-    @Override
-    public String toString() {
-        return detail;
-    }
-    ```
-    
-3. Create a new layout resource file by right-clicking on the layout folder and select New ==> Layout resource file. Name it list_item.xml. 
+2. Create a new layout resource file by right-clicking on the layout folder and select New ==> Layout resource file. Name it list_item.xml. 
     
     ![](.md_images/list_res.png)
     
     Change the default orientation of the container LinearLayout from `vertical` to `horizontal`, and insert the following within the LinearLayout
     
     ```xml
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="85dp"
-        android:layout_height="85dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="5dp"
-        android:background="@android:color/darker_gray"
-        android:padding="8dp"
-        android:scaleType="centerCrop" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="20dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/textViewName"
+    <?xml version="1.0" encoding="utf-8"?>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal" android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="85dp"
+            android:layout_height="85dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@android:color/darker_gray"
+            android:padding="8dp"
+            android:scaleType="centerCrop" />
+    
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="first + last name"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/textViewDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="details of the candidate"
-            android:textSize="12sp" />
-
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical">
+    
+            <TextView
+                android:id="@+id/textViewName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="first + last name"
+                android:textSize="16sp" />
+    
+            <TextView
+                android:id="@+id/textViewDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="details of the candidate"
+                android:textSize="12sp" />
+    
+        </LinearLayout>
     </LinearLayout>
     ```
     
@@ -194,7 +170,7 @@ Simple ListView is useful for displaying data that can be converted to strings i
     
     ![list item](.md_images/listitem.png)
     
-4. Create a new activity using the 'Empty Activity' template and name it PhotoListActivity. Open activity_photo_list.xml, insert the following into the container RelativeLayout:
+3. Create a new activity using the 'Empty Activity' template and name it PhotoListActivity. Open activity_photo_list.xml, insert the following into the container ConstraintLayout:
     
     ```xml
     <TextView
@@ -227,114 +203,77 @@ Simple ListView is useful for displaying data that can be converted to strings i
     ```
     
     This layout is very similar to the simple list example. The only difference is that it has an additional TextView above ListView.
+   
+4. Create a new data class called Candidate and insert the following in PhotoListActivity class
     
-5. In PhotoListActivity.java, add the following class member variable declaration/initialization.
+    ```kotlin
+    data class Candidate(val name : String, val detail : String, val photo : Int)
+    ```
+
+5. In PhotoListActivity.kt, add the code in OnCreate() function after setContentView().
     
-    ```java
-    private ListView listView;
-    private String[] candidateNames;
-    private String[] candidateDetails;
-    public static int[] candidatePhotos = {
-            R.drawable.clinton,
-            R.drawable.sanders,
-            R.drawable.omalley,
-            R.drawable.chafee,
-            R.drawable.trump,
-            R.drawable.carson,
-            R.drawable.rubio,
-            R.drawable.bush
-    };
-    private ArrayList<Candidate> candidates = new ArrayList<>();
+    ```kotlin
+    var candidateNames = resources.getStringArray(R.array.candidateNames)
+    var candidateDetails = resources.getStringArray(R.array.candidateNames)
+    var candidatePhotos: Array<Int> = arrayOf(
+        R.drawable.clinton,
+        R.drawable.sanders,
+        R.drawable.omalley,
+        R.drawable.chafee,
+        R.drawable.trump,
+        R.drawable.carson,
+        R.drawable.rubio,
+        R.drawable.bush
+    )
+    var candidates = ArrayList<Candidate>()
     ```
     
     Note in the code above an array of integers is declared for drawable resources. (Why is the type int?)
     
-6. Insert String array initialization into the `onCreate()` method, just below `setContentView()`, so your `onCreate()` becomes
+6. Insert the following code after `candidates` array
     
-    ```java
+    ```kotlin
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_photo_list);
+    for (i in 0 until candidateNames.size) {
+        val c = Candidate(candidateNames[i], candidateDetails[i], candidatePhotos[i])
+        candidates.add(c)
+    }
 
-        candidateNames = getResources().getStringArray(R.array.candidateNames);
-        candidateDetails = getResources().getStringArray(R.array.candidateDetails);
-        generateCandidates();
-    ```
-    
-    Insert the following as a class method. This is to create a function that initializes the ArrayList for Candidate class.
-    
-    ```java
-    private void generateCandidates() {
-
-        for (int i = 0; i < candidatePhotos.length; i++) {
-            candidates.add(new Candidate(candidateNames[i], candidateDetails[i], candidatePhotos[i]));
-        }
+    val listView: ListView = this.findViewById(R.id.listViewComplex)
+    val listAdapter =
+    CandidateAdapter(this, R.layout.list_item, candidates)
+    listView.adapter = listAdapter
+    //using lambda syntax
+    listView.setOnItemClickListener { parent, view, position, id ->
+        Toast.makeText(this, "You clicked ${candidates[position].name}", Toast.LENGTH_LONG).show()
     }
     ```
     
-7. Insert the following code into `onCreate()` method
+7. Create a new class called CandidateAdapter within the PhotoListActivity class. 
     
-    ```java
-    listView = (ListView) findViewById(R.id.listViewComplex);
-        listView.setAdapter(new CandidateAdapter(this, R.layout.list_item, candidates));
-        listView.setOnItemClickListener(
-        
-                new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    
-                        Toast.makeText(getBaseContext(), "You clicked " + candidates.get(position), Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
-    ```
-    
-    The code above initialize a ListView and associates it with a customized Adapter. The onClickListner is the same as in the simple list example. The only thing that is new here is the association of data and ListView through a customized Adapter.
-    
-    > CandidateAdapter can be used to add more data to the arraylist e.g. `candidateAdapter.add(candidates.get(0)); candidateAdapter.notifyDataSetInvalidated();` But this requires a 'candidateAdapter' object to be created beforehand.
-    
-8. Create a new class called CandidateAdapter. Open the Java file and replace auto-generated class with the following (don't touch the package declaration!)
-    
-    ```java
-    public class CandidateAdapter extends ArrayAdapter<Candidate> {
-
-        private int resource;
-        private ArrayList<Candidate> candidates;
-        private Context context;
-
-        public CandidateAdapter(Context context, int resource, ArrayList<Candidate> candidates) {
-            super(context, resource, candidates);
-            this.resource = resource;
-            this.candidates = candidates;
-            this.context = context;
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View v = convertView;
-            try {
-                if (v == null) {
-                    LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    v = layoutInflater.inflate(resource, parent, false);
-                }
-
-                ImageView imageView = (ImageView) v.findViewById(R.id.imageView);
-                TextView textViewName = (TextView) v.findViewById(R.id.textViewName);
-                TextView textViewDetail = (TextView) v.findViewById(R.id.textViewDetail);
-
-                imageView.setImageResource(candidates.get(position).getPhoto());
-                textViewName.setText(candidates.get(position).getName());
-                textViewDetail.setText(candidates.get(position).getDetail());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                e.getCause();
+    ```kotlin
+    //subclass of ArrayList<T>, you need to inherit the constructor as well.
+    class CandidateAdapter(
+        context: Context,
+        resource: Int,
+        objects: MutableList<Candidate>
+    ) : ArrayAdapter<Candidate>(context, resource, objects) {
+        private var resource = resource
+        private var candidates = objects
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            var v = convertView
+            if (v == null){
+                val layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+                v = layoutInflater.inflate(resource, parent, false)
             }
-            return v;
+            var imageView = v!!.findViewById<ImageView>(R.id.imageView)
+            var textViewName = v!!.findViewById<TextView>(R.id.textViewName)
+            var textViewDetail = v!!.findViewById<TextView>(R.id.textViewDetail)
+            imageView.setImageResource(candidates[position].photo)
+            textViewName.text = candidates[position].name
+            textViewDetail.text = candidates[position].detail
+            return v!!
         }
-
     }
     ```
     
@@ -368,11 +307,12 @@ Simple ListView is useful for displaying data that can be converted to strings i
     
     You'll see that ListView and Button overlap at the top-left corner of the screen. Change the following attribute of `ListView` to have more space at the top `app:layout_constraintTop_toBottomOf="@+id/complexList"`
     
-10. Open MainActivity.java, insert the following into the class
+10. Open MainActivity.kt, insert the following into the class
     
-    ```java
-    public void onButtonClick(View v){
-        startActivity(new Intent(this, PhotoListActivity.class));
+    ```kotlin
+    fun onButtonClick(v : View){
+        val i = Intent(this, PhotoListActivity::class.java)
+        startActivity(i)
     }
     ```
     
