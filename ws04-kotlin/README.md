@@ -127,6 +127,7 @@ Simple ListView is useful for displaying data that can be converted to strings i
     ```xml
     <?xml version="1.0" encoding="utf-8"?>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto" 
         android:orientation="horizontal" android:layout_width="match_parent"
         android:layout_height="match_parent">
         <ImageView
